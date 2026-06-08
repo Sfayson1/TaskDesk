@@ -1,10 +1,11 @@
 /*
 Name: Sherika Fayson
-Date: May 31, 2026
-Assignment: SDC320 Course Project - Phase 1 Class Implementation
+Date: June 7, 2026
+Assignment: SDC320 Course Project - Phase 2 Database Implementation
 Description: Main entry point for the TaskDesk Client & Invoice Tracker application.
              Provides a menu-driven terminal interface for managing clients, projects,
              tasks, time entries, and generating formatted invoice summaries.
+             All data is persisted to a SQLite database via DatabaseManager.
 */
 
 using System;
@@ -12,14 +13,10 @@ using System.Collections.Generic;
 
 class Program
 {
-  private static List<Client> clients = new List<Client>();
-  private static List<Project> projects = new List<Project>();
-  private static List<TaskItem> tasks = new List<TaskItem>();
-  private static List<TimeEntry> timeEntries = new List<TimeEntry>();
-  private static int nextId = 1;
-
   static void Main()
   {
+    DatabaseManager.InitializeDatabase();
+
     Console.WriteLine("=========================================");
     Console.WriteLine("   TaskDesk Client & Invoice Tracker");
     Console.WriteLine("   Sherika Fayson");
@@ -131,8 +128,7 @@ class Program
     }
 
     Client client = new Client(name, email, phone);
-    client.Id = nextId++;
-    clients.Add(client);
+    DatabaseManager.CreateClient(client);
     Console.WriteLine($"\nClient added successfully!");
     Console.WriteLine(client.GetInfo());
   }
@@ -140,6 +136,8 @@ class Program
   static void ViewClients()
   {
     Console.WriteLine("\n--- All Clients ---");
+    List<Client> clients = DatabaseManager.GetClients();
+
     if (clients.Count == 0)
     {
       Console.WriteLine("No clients found.");
@@ -157,10 +155,19 @@ class Program
   static void UpdateClient()
   {
     Console.WriteLine("\n--- Update Client ---");
-    ViewClients();
+    List<Client> clients = DatabaseManager.GetClients();
+
     if (clients.Count == 0)
     {
+      Console.WriteLine("No clients found.");
       return;
+    }
+
+    foreach (Client c in clients)
+    {
+      Console.WriteLine();
+      Console.WriteLine(c.ToString());
+      Console.WriteLine("------------------");
     }
 
     Console.Write("Enter Client ID to update: ");
@@ -170,7 +177,7 @@ class Program
       return;
     }
 
-    Client client = clients.Find(c => c.Id == id);
+    Client client = DatabaseManager.GetClientById(id);
     if (client == null)
     {
       Console.WriteLine("Client not found.");
@@ -190,6 +197,7 @@ class Program
     if (!string.IsNullOrWhiteSpace(email)) client.Email = email;
     if (!string.IsNullOrWhiteSpace(phone)) client.PhoneNumber = phone;
 
+    DatabaseManager.UpdateClient(client);
     Console.WriteLine($"\nClient updated successfully!");
     Console.WriteLine(client.GetInfo());
   }
@@ -197,10 +205,19 @@ class Program
   static void DeleteClient()
   {
     Console.WriteLine("\n--- Delete Client ---");
-    ViewClients();
+    List<Client> clients = DatabaseManager.GetClients();
+
     if (clients.Count == 0)
     {
+      Console.WriteLine("No clients found.");
       return;
+    }
+
+    foreach (Client c in clients)
+    {
+      Console.WriteLine();
+      Console.WriteLine(c.ToString());
+      Console.WriteLine("------------------");
     }
 
     Console.Write("Enter Client ID to delete: ");
@@ -210,14 +227,14 @@ class Program
       return;
     }
 
-    Client client = clients.Find(c => c.Id == id);
+    Client client = DatabaseManager.GetClientById(id);
     if (client == null)
     {
       Console.WriteLine("Client not found.");
       return;
     }
 
-    clients.Remove(client);
+    DatabaseManager.DeleteClient(id);
     Console.WriteLine($"Client '{client.Name}' deleted successfully.");
   }
 
@@ -264,15 +281,21 @@ class Program
   static void AddProject()
   {
     Console.WriteLine("\n--- Add New Project ---");
+    List<Client> clients = DatabaseManager.GetClients();
+
     if (clients.Count == 0)
     {
       Console.WriteLine("No clients available. Please add a client first.");
       return;
     }
 
-    ViewClients();
+    foreach (Client c in clients)
+    {
+      Console.WriteLine(c.GetInfo());
+    }
+
     Console.Write("Enter Client ID for this project: ");
-    if (!int.TryParse(Console.ReadLine(), out int clientId) || clients.Find(c => c.Id == clientId) == null)
+    if (!int.TryParse(Console.ReadLine(), out int clientId) || DatabaseManager.GetClientById(clientId) == null)
     {
       Console.WriteLine("Invalid Client ID.");
       return;
@@ -298,8 +321,7 @@ class Program
     if (string.IsNullOrWhiteSpace(status)) status = "Active";
 
     Project project = new Project(name, rate, status, clientId);
-    project.Id = nextId++;
-    projects.Add(project);
+    DatabaseManager.CreateProject(project);
     Console.WriteLine($"\nProject added successfully!");
     Console.WriteLine(project.GetInfo());
   }
@@ -307,6 +329,8 @@ class Program
   static void ViewProjects()
   {
     Console.WriteLine("\n--- All Projects ---");
+    List<Project> projects = DatabaseManager.GetProjects();
+
     if (projects.Count == 0)
     {
       Console.WriteLine("No projects found.");
@@ -324,10 +348,19 @@ class Program
   static void UpdateProject()
   {
     Console.WriteLine("\n--- Update Project ---");
-    ViewProjects();
+    List<Project> projects = DatabaseManager.GetProjects();
+
     if (projects.Count == 0)
     {
+      Console.WriteLine("No projects found.");
       return;
+    }
+
+    foreach (Project p in projects)
+    {
+      Console.WriteLine();
+      Console.WriteLine(p.ToString());
+      Console.WriteLine("------------------");
     }
 
     Console.Write("Enter Project ID to update: ");
@@ -337,7 +370,7 @@ class Program
       return;
     }
 
-    Project project = projects.Find(p => p.Id == id);
+    Project project = DatabaseManager.GetProjectById(id);
     if (project == null)
     {
       Console.WriteLine("Project not found.");
@@ -360,6 +393,7 @@ class Program
       project.HourlyRate = rate;
     }
 
+    DatabaseManager.UpdateProject(project);
     Console.WriteLine($"\nProject updated successfully!");
     Console.WriteLine(project.GetInfo());
   }
@@ -367,10 +401,19 @@ class Program
   static void DeleteProject()
   {
     Console.WriteLine("\n--- Delete Project ---");
-    ViewProjects();
+    List<Project> projects = DatabaseManager.GetProjects();
+
     if (projects.Count == 0)
     {
+      Console.WriteLine("No projects found.");
       return;
+    }
+
+    foreach (Project p in projects)
+    {
+      Console.WriteLine();
+      Console.WriteLine(p.ToString());
+      Console.WriteLine("------------------");
     }
 
     Console.Write("Enter Project ID to delete: ");
@@ -380,14 +423,14 @@ class Program
       return;
     }
 
-    Project project = projects.Find(p => p.Id == id);
+    Project project = DatabaseManager.GetProjectById(id);
     if (project == null)
     {
       Console.WriteLine("Project not found.");
       return;
     }
 
-    projects.Remove(project);
+    DatabaseManager.DeleteProject(id);
     Console.WriteLine($"Project '{project.ProjectName}' deleted successfully.");
   }
 
@@ -434,15 +477,21 @@ class Program
   static void AddTask()
   {
     Console.WriteLine("\n--- Add New Task ---");
+    List<Project> projects = DatabaseManager.GetProjects();
+
     if (projects.Count == 0)
     {
       Console.WriteLine("No projects available. Please add a project first.");
       return;
     }
 
-    ViewProjects();
+    foreach (Project p in projects)
+    {
+      Console.WriteLine(p.GetInfo());
+    }
+
     Console.Write("Enter Project ID for this task: ");
-    if (!int.TryParse(Console.ReadLine(), out int projectId) || projects.Find(p => p.Id == projectId) == null)
+    if (!int.TryParse(Console.ReadLine(), out int projectId) || DatabaseManager.GetProjectById(projectId) == null)
     {
       Console.WriteLine("Invalid Project ID.");
       return;
@@ -460,8 +509,7 @@ class Program
     string description = Console.ReadLine();
 
     TaskItem task = new TaskItem(title, description, projectId);
-    task.Id = nextId++;
-    tasks.Add(task);
+    DatabaseManager.CreateTask(task);
     Console.WriteLine($"\nTask added successfully!");
     Console.WriteLine(task.GetInfo());
   }
@@ -469,6 +517,8 @@ class Program
   static void ViewTasks()
   {
     Console.WriteLine("\n--- All Tasks ---");
+    List<TaskItem> tasks = DatabaseManager.GetAllTasks();
+
     if (tasks.Count == 0)
     {
       Console.WriteLine("No tasks found.");
@@ -486,10 +536,19 @@ class Program
   static void MarkTaskComplete()
   {
     Console.WriteLine("\n--- Mark Task Complete ---");
-    ViewTasks();
+    List<TaskItem> tasks = DatabaseManager.GetAllTasks();
+
     if (tasks.Count == 0)
     {
+      Console.WriteLine("No tasks found.");
       return;
+    }
+
+    foreach (TaskItem t in tasks)
+    {
+      Console.WriteLine();
+      Console.WriteLine(t.ToString());
+      Console.WriteLine("------------------");
     }
 
     Console.Write("Enter Task ID to mark complete: ");
@@ -499,7 +558,7 @@ class Program
       return;
     }
 
-    TaskItem task = tasks.Find(t => t.Id == id);
+    TaskItem task = DatabaseManager.GetTaskById(id);
     if (task == null)
     {
       Console.WriteLine("Task not found.");
@@ -507,6 +566,7 @@ class Program
     }
 
     task.MarkComplete();
+    DatabaseManager.UpdateTask(task);
     Console.WriteLine($"\nTask marked as complete!");
     Console.WriteLine(task.GetInfo());
   }
@@ -514,10 +574,19 @@ class Program
   static void DeleteTask()
   {
     Console.WriteLine("\n--- Delete Task ---");
-    ViewTasks();
+    List<TaskItem> tasks = DatabaseManager.GetAllTasks();
+
     if (tasks.Count == 0)
     {
+      Console.WriteLine("No tasks found.");
       return;
+    }
+
+    foreach (TaskItem t in tasks)
+    {
+      Console.WriteLine();
+      Console.WriteLine(t.ToString());
+      Console.WriteLine("------------------");
     }
 
     Console.Write("Enter Task ID to delete: ");
@@ -527,14 +596,14 @@ class Program
       return;
     }
 
-    TaskItem task = tasks.Find(t => t.Id == id);
+    TaskItem task = DatabaseManager.GetTaskById(id);
     if (task == null)
     {
       Console.WriteLine("Task not found.");
       return;
     }
 
-    tasks.Remove(task);
+    DatabaseManager.DeleteTask(id);
     Console.WriteLine($"Task '{task.Title}' deleted successfully.");
   }
 
@@ -577,13 +646,19 @@ class Program
   static void AddTimeEntry()
   {
     Console.WriteLine("\n--- Add Time Entry ---");
+    List<Project> projects = DatabaseManager.GetProjects();
+
     if (projects.Count == 0)
     {
       Console.WriteLine("No projects available. Please add a project first.");
       return;
     }
 
-    ViewProjects();
+    foreach (Project p in projects)
+    {
+      Console.WriteLine(p.GetInfo());
+    }
+
     Console.Write("Enter Project ID: ");
     if (!int.TryParse(Console.ReadLine(), out int projectId))
     {
@@ -591,7 +666,7 @@ class Program
       return;
     }
 
-    Project project = projects.Find(p => p.Id == projectId);
+    Project project = DatabaseManager.GetProjectById(projectId);
     if (project == null)
     {
       Console.WriteLine("Project not found.");
@@ -613,8 +688,7 @@ class Program
     string description = Console.ReadLine();
 
     TimeEntry entry = new TimeEntry(hours, rate, description, projectId);
-    entry.Id = nextId++;
-    timeEntries.Add(entry);
+    DatabaseManager.CreateTimeEntry(entry);
     Console.WriteLine($"\nTime entry added successfully!");
     Console.WriteLine(entry.GetInfo());
   }
@@ -622,13 +696,15 @@ class Program
   static void ViewTimeEntries()
   {
     Console.WriteLine("\n--- All Time Entries ---");
-    if (timeEntries.Count == 0)
+    List<TimeEntry> entries = DatabaseManager.GetAllTimeEntries();
+
+    if (entries.Count == 0)
     {
       Console.WriteLine("No time entries found.");
       return;
     }
 
-    foreach (TimeEntry entry in timeEntries)
+    foreach (TimeEntry entry in entries)
     {
       Console.WriteLine();
       Console.WriteLine(entry.ToString());
@@ -639,10 +715,19 @@ class Program
   static void DeleteTimeEntry()
   {
     Console.WriteLine("\n--- Delete Time Entry ---");
-    ViewTimeEntries();
-    if (timeEntries.Count == 0)
+    List<TimeEntry> entries = DatabaseManager.GetAllTimeEntries();
+
+    if (entries.Count == 0)
     {
+      Console.WriteLine("No time entries found.");
       return;
+    }
+
+    foreach (TimeEntry e in entries)
+    {
+      Console.WriteLine();
+      Console.WriteLine(e.ToString());
+      Console.WriteLine("------------------");
     }
 
     Console.Write("Enter Time Entry ID to delete: ");
@@ -652,14 +737,14 @@ class Program
       return;
     }
 
-    TimeEntry entry = timeEntries.Find(e => e.Id == id);
+    TimeEntry entry = DatabaseManager.GetTimeEntryById(id);
     if (entry == null)
     {
       Console.WriteLine("Time entry not found.");
       return;
     }
 
-    timeEntries.Remove(entry);
+    DatabaseManager.DeleteTimeEntry(id);
     Console.WriteLine("Time entry deleted successfully.");
   }
 
@@ -669,19 +754,25 @@ class Program
   {
     Console.WriteLine("\n----- GENERATE INVOICE -----");
 
+    List<Client> clients = DatabaseManager.GetClients();
     if (clients.Count == 0)
     {
       Console.WriteLine("No clients available. Please add a client first.");
       return;
     }
 
-    if (projects.Count == 0)
+    List<Project> allProjects = DatabaseManager.GetProjects();
+    if (allProjects.Count == 0)
     {
       Console.WriteLine("No projects available. Please add a project first.");
       return;
     }
 
-    ViewClients();
+    foreach (Client c in clients)
+    {
+      Console.WriteLine(c.GetInfo());
+    }
+
     Console.Write("Enter Client ID: ");
     if (!int.TryParse(Console.ReadLine(), out int clientId))
     {
@@ -689,14 +780,14 @@ class Program
       return;
     }
 
-    Client client = clients.Find(c => c.Id == clientId);
+    Client client = DatabaseManager.GetClientById(clientId);
     if (client == null)
     {
       Console.WriteLine("Client not found.");
       return;
     }
 
-    List<Project> clientProjects = projects.FindAll(p => p.ClientId == clientId);
+    List<Project> clientProjects = DatabaseManager.GetProjectsByClient(clientId);
     if (clientProjects.Count == 0)
     {
       Console.WriteLine("No projects found for this client.");
@@ -716,14 +807,14 @@ class Program
       return;
     }
 
-    Project project = projects.Find(p => p.Id == projectId && p.ClientId == clientId);
-    if (project == null)
+    Project project = DatabaseManager.GetProjectById(projectId);
+    if (project == null || project.ClientId != clientId)
     {
       Console.WriteLine("Project not found.");
       return;
     }
 
-    List<TimeEntry> projectEntries = timeEntries.FindAll(e => e.ProjectId == projectId);
+    List<TimeEntry> projectEntries = DatabaseManager.GetTimeEntriesByProject(projectId);
     Invoice invoice = new Invoice(client, project, projectEntries);
 
     Console.WriteLine();

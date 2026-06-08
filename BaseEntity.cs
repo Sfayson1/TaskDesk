@@ -23,7 +23,7 @@ public abstract class BaseEntity
   public DateTime CreatedAt
   {
     get { return m_createdAt; }
-    protected set { m_createdAt = value; }
+    set { m_createdAt = value; }
   }
 
   protected BaseEntity()

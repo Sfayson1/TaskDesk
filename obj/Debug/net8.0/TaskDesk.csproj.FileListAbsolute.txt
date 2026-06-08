@@ -1,0 +1,15 @@
+/Users/sherikafayson/sdc320/TaskDesk/bin/Debug/net8.0/TaskDesk
+/Users/sherikafayson/sdc320/TaskDesk/bin/Debug/net8.0/TaskDesk.deps.json
+/Users/sherikafayson/sdc320/TaskDesk/bin/Debug/net8.0/TaskDesk.runtimeconfig.json
+/Users/sherikafayson/sdc320/TaskDesk/bin/Debug/net8.0/TaskDesk.dll
+/Users/sherikafayson/sdc320/TaskDesk/bin/Debug/net8.0/TaskDesk.pdb
+/Users/sherikafayson/sdc320/TaskDesk/obj/Debug/net8.0/TaskDesk.GeneratedMSBuildEditorConfig.editorconfig
+/Users/sherikafayson/sdc320/TaskDesk/obj/Debug/net8.0/TaskDesk.AssemblyInfoInputs.cache
+/Users/sherikafayson/sdc320/TaskDesk/obj/Debug/net8.0/TaskDesk.AssemblyInfo.cs
+/Users/sherikafayson/sdc320/TaskDesk/obj/Debug/net8.0/TaskDesk.csproj.CoreCompileInputs.cache
+/Users/sherikafayson/sdc320/TaskDesk/obj/Debug/net8.0/TaskDesk.sourcelink.json
+/Users/sherikafayson/sdc320/TaskDesk/obj/Debug/net8.0/TaskDesk.dll
+/Users/sherikafayson/sdc320/TaskDesk/obj/Debug/net8.0/refint/TaskDesk.dll
+/Users/sherikafayson/sdc320/TaskDesk/obj/Debug/net8.0/TaskDesk.pdb
+/Users/sherikafayson/sdc320/TaskDesk/obj/Debug/net8.0/TaskDesk.genruntimeconfig.cache
+/Users/sherikafayson/sdc320/TaskDesk/obj/Debug/net8.0/ref/TaskDesk.dll
