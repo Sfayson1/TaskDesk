@@ -617,8 +617,9 @@ class Program
       Console.WriteLine("\n----- MANAGE TIME ENTRIES -----");
       Console.WriteLine("1. Add Time Entry");
       Console.WriteLine("2. View All Time Entries");
-      Console.WriteLine("3. Delete Time Entry");
-      Console.WriteLine("4. Back to Main Menu");
+      Console.WriteLine("3. Edit Time Entry");
+      Console.WriteLine("4. Delete Time Entry");
+      Console.WriteLine("5. Back to Main Menu");
       Console.Write("Select an option: ");
 
       string choice = Console.ReadLine();
@@ -631,9 +632,12 @@ class Program
           ViewTimeEntries();
           break;
         case "3":
-          DeleteTimeEntry();
+          EditTimeEntry();
           break;
         case "4":
+          DeleteTimeEntry();
+          break;
+        case "5":
           back = true;
           break;
         default:
@@ -710,6 +714,59 @@ class Program
       Console.WriteLine(entry.ToString());
       Console.WriteLine("------------------");
     }
+  }
+
+  static void EditTimeEntry()
+  {
+    Console.WriteLine("\n--- Edit Time Entry ---");
+    List<TimeEntry> entries = DatabaseManager.GetAllTimeEntries();
+
+    if (entries.Count == 0)
+    {
+      Console.WriteLine("No time entries found.");
+      return;
+    }
+
+    foreach (TimeEntry e in entries)
+    {
+      Console.WriteLine();
+      Console.WriteLine(e.ToString());
+      Console.WriteLine("------------------");
+    }
+
+    Console.Write("Enter Time Entry ID to edit: ");
+    if (!int.TryParse(Console.ReadLine(), out int id))
+    {
+      Console.WriteLine("Invalid ID.");
+      return;
+    }
+
+    TimeEntry entry = DatabaseManager.GetTimeEntryById(id);
+    if (entry == null)
+    {
+      Console.WriteLine("Time entry not found.");
+      return;
+    }
+
+    Console.Write($"New Hours Worked ({entry.HoursWorked}): ");
+    string hoursInput = Console.ReadLine();
+
+    Console.Write($"New Hourly Rate (${entry.HourlyRate:F2}): ");
+    string rateInput = Console.ReadLine();
+
+    Console.Write($"New Description ({entry.WorkDescription}): ");
+    string description = Console.ReadLine();
+
+    if (!string.IsNullOrWhiteSpace(hoursInput) && double.TryParse(hoursInput, out double hours) && hours > 0)
+      entry.HoursWorked = hours;
+    if (!string.IsNullOrWhiteSpace(rateInput) && decimal.TryParse(rateInput, out decimal rate) && rate >= 0)
+      entry.HourlyRate = rate;
+    if (!string.IsNullOrWhiteSpace(description))
+      entry.WorkDescription = description;
+
+    DatabaseManager.UpdateTimeEntry(entry);
+    Console.WriteLine("\nTime entry updated successfully!");
+    Console.WriteLine(entry.GetInfo());
   }
 
   static void DeleteTimeEntry()
